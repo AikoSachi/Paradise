@@ -1,0 +1,42 @@
+set(COMMON_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/application.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/application.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/blowfish.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/blowfish.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/cbasetypes.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/console_service.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/debug.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/filewatcher.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/filewatcher.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/kernel.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/kernel.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/logging.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/logging.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/md52.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/md52.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/mmo.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/socket.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/socket.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/sql_prepared_stmt.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/sql_prepared_stmt.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/sql.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/sql.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/string.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/taskmgr.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/taskmgr.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/timer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/timer.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/xirand.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/utils.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/utils.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/version.cpp # auto-generated
+    ${CMAKE_CURRENT_SOURCE_DIR}/version.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/zlib.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/zlib.h
+    $<$<PLATFORM_ID:Windows>:${CMAKE_CURRENT_SOURCE_DIR}/debug_windows.cpp>
+    $<$<PLATFORM_ID:Windows>:${CMAKE_CURRENT_SOURCE_DIR}/WheatyExceptionReport.cpp>
+    $<$<PLATFORM_ID:Windows>:${CMAKE_CURRENT_SOURCE_DIR}/WheatyExceptionReport.h>
+    $<$<PLATFORM_ID:Darwin>:${CMAKE_CURRENT_SOURCE_DIR}/debug_osx.cpp>
+    $<$<PLATFORM_ID:Linux>:${CMAKE_CURRENT_SOURCE_DIR}/debug_linux.cpp>
+    PARENT_SCOPE
+)

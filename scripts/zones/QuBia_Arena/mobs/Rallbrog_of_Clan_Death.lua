@@ -1,0 +1,19 @@
+-----------------------------------
+-- Area: QuBia_Arena
+--  Mob: Rallbrog of Clan Death
+-- Mission 9-2 San d'Oria
+-----------------------------------
+local global = require("scripts/zones/QuBia_Arena/Globals")
+local ID = require("scripts/zones/QuBia_Arena/IDs")
+-----------------------------------
+local entity = {}
+
+entity.onMobDeath = function(mob, player, isKiller)
+    global.tryPhaseChange(player)
+end
+
+entity.onEventFinish = function(player, csid, option, target)
+    global.phaseEventFinish(player, csid)
+end
+
+return entity

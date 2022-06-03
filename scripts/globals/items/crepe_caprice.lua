@@ -1,0 +1,46 @@
+-----------------------------------
+-- ID: 5776
+-- Item: Crepe Caprice
+-- Food Effect: 30 Min, All Races
+-----------------------------------
+-- HP +5% (cap20)
+-- MP Healing 3
+-- Magic Accuracy +21% (cap 40)
+-- Magic Defense +2
+-----------------------------------
+require("scripts/globals/status")
+require("scripts/globals/msg")
+-----------------------------------
+local item_object = {}
+
+item_object.onItemCheck = function(target)
+    local result = 0
+    if target:hasStatusEffect(xi.effect.FOOD) or target:hasStatusEffect(xi.effect.FIELD_SUPPORT_FOOD) then
+        result = xi.msg.basic.IS_FULL
+    end
+    return result
+end
+
+item_object.onItemUse = function(target)
+    target:addStatusEffect(xi.effect.FOOD, 0, 0, 1800, 5776)
+end
+
+item_object.onEffectGain = function(target, effect)
+    target:addMod(xi.mod.FOOD_HPP, 5)
+    target:addMod(xi.mod.FOOD_HP_CAP, 20)
+    target:addMod(xi.mod.MPHEAL, 3)
+    target:addMod(xi.mod.MDEF, 2)
+    target:addMod(xi.mod.FOOD_MACCP, 21)
+    target:addMod(xi.mod.FOOD_MACC_CAP, 40)
+end
+
+item_object.onEffectLose = function(target, effect)
+    target:delMod(xi.mod.FOOD_HPP, 5)
+    target:delMod(xi.mod.FOOD_HP_CAP, 20)
+    target:delMod(xi.mod.MPHEAL, 3)
+    target:delMod(xi.mod.MDEF, 2)
+    target:delMod(xi.mod.FOOD_MACCP, 21)
+    target:delMod(xi.mod.FOOD_MACC_CAP, 40)
+end
+
+return item_object

@@ -1,0 +1,30 @@
+-----------------------------------
+-- Area: Mhaura
+--  NPC: Mololo
+-- Guild Merchant NPC: Blacksmithing Guild
+-- !pos -64.278 -16.624 34.120 249
+-----------------------------------
+local ID = require("scripts/zones/Mhaura/IDs")
+require("scripts/globals/shop")
+require("scripts/settings/main")
+require("scripts/globals/status")
+-----------------------------------
+local entity = {}
+
+entity.onTrade = function(player, npc, trade)
+end
+
+entity.onTrigger = function(player, npc)
+    local guildSkillId = xi.skill.SMITHING
+    local stock = xi.shop.generalGuildStock[guildSkillId]
+    xi.shop.generalGuild(player, stock, guildSkillId)
+    player:showText(npc, ID.text.SMITHING_GUILD)
+end
+
+entity.onEventUpdate = function(player, csid, option)
+end
+
+entity.onEventFinish = function(player, csid, option)
+end
+
+return entity

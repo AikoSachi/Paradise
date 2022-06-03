@@ -1,0 +1,13 @@
+-----------------------------------
+-- Area: Jugner Forest
+--  Mob: Screamer
+-----------------------------------
+require("scripts/globals/regimes")
+-----------------------------------
+local entity = {}
+
+entity.onMobDeath = function(mob, player, isKiller)
+    xi.regime.checkRegime(player, mob, 58, 2, xi.regime.type.FIELDS)
+end
+
+return entity

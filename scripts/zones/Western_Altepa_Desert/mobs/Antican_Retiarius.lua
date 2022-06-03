@@ -1,0 +1,13 @@
+-----------------------------------
+-- Area: Western Altepa Desert
+--  Mob: Antican Retiarius
+-----------------------------------
+require("scripts/globals/regimes")
+-----------------------------------
+local entity = {}
+
+entity.onMobDeath = function(mob, player, isKiller)
+    xi.regime.checkRegime(player, mob, 135, 3, xi.regime.type.FIELDS)
+end
+
+return entity

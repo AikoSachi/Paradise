@@ -1,0 +1,256 @@
+== Common issues ==
+=== Gil not sent to the Delivery Box from the Auction House  ===
+One possible fix: Execute HeidiSQL > select your session and connect to it > select "tpzdb" > File > Run SQL file... > select the triggers.sql file from the \topaz\sql folder > Open.
+
+=== Version Mismatch ===
+<b>WE STRONGLY ADVISE AGAINST LOCKING THE SERVER TO OLDER VERSIONS. IT IS A UNIVERSALLY BAD IDEA.</b> It <em>will</em> cause issues even <em>if</em> you manage to keep both server and client versions on par!
+
+If the server (Topaz Next) and the client (Final Fantasy XI) don't share the same version, you'll probably get this error in the topaz_connect.exe log window:
+```
+[Error] lobbyview_parse: Incorrect client version: got 000000xx_x, expected 000000xx_x
+[Error] lobbyview_parse: The server must be updated to support this client version
+```
+Open the <code>topaz\conf\version.conf</code> file with a text editor and modify the following line:
+```
+VER_LOCK: 2
+```
+to:
+```
+VER_LOCK: 0
+```
+save then restart the topaz_connect.exe server.
+
+
+== Tweaks ==
+=== Setting up an automated Auction House with Python. ===
+==== Installing ====
+Python and the MySQL Python Connector are needed and should already be installed if you previously followed our [https://github.com/DerpyProjectGroup/topaz/wiki/Server-Setup-and-Maintenance-[Windows-10] Windows 10 installation setup guide].
+
+Right click wherever you want to download the repository > Git Clone... > URL: https://github.com/AdamGagorik/pydarkstar.git > OK > then Close when it's done.
+
+⚠ Running topaz-search.exe in the background (as administrator) is mandatory ⚠
+
+Right click + holding the Shift key > context menu: Open command window here/Open PowerShell window here, then type:
+```
+py -3 -m pip
+```
+then enter each of these commands (hit "Enter" after each one) and it will download and install automatically:
+```
+py -3 -m pip install beautifulsoup4
+py -3 -m pip install pymysql
+py -3 -m pip install sqlalchemy
+```
+Double click on \pydarkstar\makebin.py to create base files then open \pydarkstar\bin\config.yaml with a text editor (default options are listed below, you can edit them at your convenience):
+```
+name: Zissou (will be the name of the bot displayed in the AH lists, buying and selling items)
+database: dspdb (change it accordingly to your database's name)
+password: root (replace with your MariaDB password)
+restock: 3600 (seconds between each automatic restock)
+tick: 30 (seconds between each purchase will be made by the bot)
+stock01: 5 (number of single items that will be restocked each tick)
+stock12: 5 (number of stacks items that will be restocked each tick)
+```
+
+==== Running ====
+1. Execute \pydarkstar\pydarkstar\bin\scrub.py to build up the items list from https://www.ffxiah.com/ (will take some time). Unfortunately you can't select the server from which the prices are pulled, if I'm correct Bahamut is the server by default. Rerun it if you want to update prices automatically.
+
+2. Execute \pydarkstar\pydarkstar\bin\broker.py: Script that will automatically buy/sell stuff. Let it run in the background.
+
+Executing \pydarkstar\pydarkstar\bin\refill.py will restock items automatically.
+
+Editing prices manually: open \pydarkstar\bin\items.csv with a text editor (0 = non listed item, add them by referring to the IDs in \topaz\sql\item_equipment.sql if necessary) and change prices accordingly.
+
+HeidiSQL useful querys:
+```
+UPDATE auction_house SET seller_name = 'Your-choice-here';
+UPDATE auction_house SET buyer_name = 'Your-choice-here';
+UPDATE auction_house SET buyer_name = 'Your-choice-here' where buyer_name is null or buyer_name = 'Your-choice-here';
+UPDATE auction_house SET sell_date = 'Your-choice-here' where sell_date = 'Your-choice-here';
+```
+
+=== Updating Python ===
+Updating Python: Default location of the Python installation files is: C:\Users\Username\AppData\Local\Programs\Python, when updating you may want to relocate old files from your old version's folder to the new one (copy/paste).
+
+Updating modules: Make sure you check if your modules are up to date from time to time (you'll probably get reminded while running migrations scripts). To do so, open a command prompt like stated above and enter:
+```
+py -3 -m pip install --upgrade Modulename
+```
+
+=== Useful GM Commands ===
+Type "!command" in game (for said "command" refer to the ones listed here: https://github.com/DerpyProjectGroup/topaz/tree/release/scripts/commands).
+
+!togglegm: no more aggro.
+
+!togglegm + /anon: invisible through /search.
+
+!hide: invisible to players.
+
+=== Unlock Superior levels (to wear particular items) ===
+\topaz\src\map\packets\char_stats.cpp:
+
+Replace:
+```cpp
+//0x52 = superior level (1 or 2)
+```
+with:
+```cpp
+ref<uint8>(0x52) = X; // replace X with desired superior level
+```
+or:
+```cpp
+ref<uint8>(0x52) = PChar->GetMLevel() == 99 ? 5 : 0; // level 99 auto superior 5
+```
+Rebuild the solution.
+
+
+=== Change your MariaDB password ===
+Open: Start Menu > "MariaDB xx.x (x64)" folder > "MySQL Client (MariaDB xx.x)".
+
+Then in the prompt command, enter the following commands:
+```
+Enter password: Your-current-MariaDB-password
+```
+Hit "Enter", then type:
+```
+SET PASSWORD FOR 'root'@'localhost' = PASSWORD('Your-new-desired-password');
+```
+Hit "Enter" (returned message: "Query OK, 0 rows affected"), then type:
+```
+FLUSH PRIVILEGES;
+```
+Hit "Enter" (returned message: "Query OK, 0 rows affected"), then type:
+```
+exit
+```
+Hit "Enter" (returned message: "Bye").
+
+How to check if it was changed correctly (while still having the same prompt command open):
+```
+mysql -u root -p
+```
+Hit "Enter", then type:
+```
+Enter password: Your-new-MariaDB-password
+```
+Hit "Enter".
+```
+exit
+```
+Hit "Enter" (returned message: "Bye").
+
+Done.
+
+=== How do I set JP Midnight? ===
+JP midnight is now coded to align with the retail JST midnight regardless of your local timezone setting and manual configuration is no longer required. There is no setting for JP Midnight and we do not recommend altering server timing behaviour as the client has hard-coded expectations that certain events and resets will occur at certain times.
+
+=== Auto-Starting the Server ===
+==== Linux ====
+Linux users can create several systemd services to automate the servers (make sure to update <code>/path/to/topaz</code>, and the User/Group):
+
+```
+#topaz.service
+
+[Unit]
+Description=Topaz - FFXI Server Emulator
+After=mysql.service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/true
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+```
+
+```
+#topaz_game.service
+
+[Unit]
+Description=Topaz Game Server
+Wants=network.target
+StartLimitIntervalSec=120
+StartLimitBurst=5
+PartOf=topaz.service
+After=topaz.service
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=5
+User=topaz
+Group=topaz
+WorkingDirectory=/path/to/topaz
+# For multiple map servers:
+# - Make a copy of this file for each server. Rename appropriately, e.g. topaz_game-cities.service
+# - Add this to a file named ip.txt in the topaz folder, replacing YOUR_PUBLIC_IP with your IP: "IP=YOUR_PUBLIC_IP"
+# - Change the zone ports in zone_settings table. A custom.sql file is useful for this.
+# - Remove the line below, 'ExecStart=/path/to/topaz_game'.
+# - Uncomment and edit the 2 lines below with the appropriate port and log location for each zone server.
+#EnvironmentFile=/path/to/topaz/ip.txt
+#ExecStart=/path/to/topaz/topaz_game --ip $IP --port 54230 --log /path/to/log/map_server.log
+ExecStart=/path/to/topaz/topaz_game
+
+[Install]
+WantedBy=topaz.service
+```
+
+```
+#topaz_connect.service
+
+[Unit]
+Description=Topaz Connect Server
+Wants=network.target
+StartLimitIntervalSec=120
+StartLimitBurst=5
+PartOf=topaz.service
+After=topaz.service
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=5
+User=topaz
+Group=topaz
+WorkingDirectory=/path/to/topaz
+ExecStart=/path/to/topaz/topaz_connect
+
+[Install]
+WantedBy=topaz.service
+```
+
+```
+#topaz_search.service
+
+[Unit]
+Description=Topaz Search Server
+Wants=network.target
+StartLimitIntervalSec=120
+StartLimitBurst=5
+PartOf=topaz.service
+After=topaz.service
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=5
+User=topaz
+Group=topaz
+WorkingDirectory=/path/to/topaz
+ExecStart=/path/to/topaz/topaz_search
+
+[Install]
+WantedBy=topaz.service
+```
+After adding these to <code>/etc/systemd/system/</code>, run <code>systemctl daemon-reload</code> followed by <code>systemctl enable topaz_game topaz_connect topaz_search</code>. You can start/stop all the servers at once with <code>systemctl start/stop topaz</code> or each individual service separately. To enable auto-start, type <code>systemctl enable topaz</code>. Make sure topaz is in a location accessible to the user that will be running the service, and the correct permissions are set.
+
+=== Automatically give new players a server linkshell ===
+In <code>topaz/scripts/globals/player.lua</code> find the following line:
+```lua
+player:setNewPlayer(true) -- apply new player flag
+```
+and add the following line:
+```lua
+player:addLinkpearl("YOURLS", true)
+```
+Replace <code>YOURLS</code> with the name of your linkshell, and the second parameter <code>true</code> will equip the linkpearl in slot 2. Change to <code>false</code> if you want to just place it in the inventory without equipping.

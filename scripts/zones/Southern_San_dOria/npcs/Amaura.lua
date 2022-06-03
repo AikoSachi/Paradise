@@ -1,0 +1,42 @@
+-----------------------------------
+-- Area: Southern San d'Oria
+-- NPC : Amaura
+-- Involved in Quest: The Medicine Woman, To Cure a Cough
+-- !pos -85 -6 89 230
+-----------------------------------
+require("scripts/globals/titles")
+require("scripts/globals/keyitems")
+require("scripts/globals/quests")
+local ID = require("scripts/zones/Southern_San_dOria/IDs")
+-----------------------------------
+local entity = {}
+
+entity.onTrade = function(player, npc, trade)
+end
+
+entity.onTrigger = function(player, npc)
+    local toCureaCough = player:getQuestStatus(xi.quest.log_id.SANDORIA, xi.quest.id.sandoria.TO_CURE_A_COUGH)
+
+    if player:getCharVar("DiaryPage") == 3 or toCureaCough == QUEST_ACCEPTED then
+        if player:hasKeyItem(xi.ki.THYME_MOSS) == false and player:hasKeyItem(xi.ki.COUGH_MEDICINE) == false then
+            player:startEvent(645) -- need thyme moss for cough med
+        elseif player:hasKeyItem(xi.ki.THYME_MOSS) == true then
+            player:startEvent(646) -- receive cough med for Nenne
+        end
+    end
+end
+
+entity.onEventUpdate = function(player, csid, option)
+end
+
+entity.onEventFinish = function(player, csid, option)
+    if csid == 645 then
+        player:addQuest(xi.quest.log_id.SANDORIA, xi.quest.id.sandoria.TO_CURE_A_COUGH)
+    elseif csid == 646 then
+        player:delKeyItem(xi.ki.THYME_MOSS)
+        player:addKeyItem(xi.ki.COUGH_MEDICINE)
+        player:messageSpecial(ID.text.KEYITEM_OBTAINED, xi.ki.COUGH_MEDICINE)
+    end
+end
+
+return entity
